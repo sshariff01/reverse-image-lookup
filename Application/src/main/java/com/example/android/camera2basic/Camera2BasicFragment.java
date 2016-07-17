@@ -59,6 +59,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -70,6 +78,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import cz.msebera.android.httpclient.Header;
 
 public class Camera2BasicFragment extends Fragment
         implements View.OnClickListener, FragmentCompat.OnRequestPermissionsResultCallback {
@@ -835,8 +845,27 @@ public class Camera2BasicFragment extends Fragment
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
-                    showToast("Saved: " + mFile);
-                    Log.d(TAG, mFile.toString());
+                    AsyncHttpClient client = new AsyncHttpClient();
+                    String url = "https://run.blockspring.com/api_v2/blocks/reverse-image-search";
+                    RequestParams params = new RequestParams();
+                    params.put("api_key", "702eb4cc4f9a58e0861da8802d96ed08");
+                    params.put("image_url", "http://i.imgur.com/h9KDYlh.jpg");
+
+                    client.post(url, params, new JsonHttpResponseHandler(){
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                            super.onSuccess(statusCode, headers, response);
+                            fetchSummary();
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                            super.onFailure(statusCode, headers, responseString, throwable);
+                            showToast("FAILURE 1");
+                        }
+                    });
+
+//                    Log.d(TAG, mFile.toString());
                     unlockFocus();
                 }
             };
@@ -846,6 +875,32 @@ public class Camera2BasicFragment extends Fragment
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    private void fetchSummary() {
+        AsyncHttpClient client = new AsyncHttpClient();
+        String url = "https://run.blockspring.com/api_v2/blocks/60fcacaff3e26678d4a78f35d824ca7c";
+        RequestParams params = new RequestParams();
+        params.put("api_key", "702eb4cc4f9a58e0861da8802d96ed08");
+        params.put("url_input", "https://en.wikipedia.org/wiki/2001_NBA_Finals");
+        params.put("sentence_count", 10);
+        client.post(url, params, new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                super.onSuccess(statusCode, headers, response);
+                try {
+                    showToast(response.getString("Summary"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+                showToast("FAILURE 2");
+            }
+        });
     }
 
     /**
