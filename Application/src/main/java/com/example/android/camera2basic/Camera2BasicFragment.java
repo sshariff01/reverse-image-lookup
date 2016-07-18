@@ -361,19 +361,22 @@ public class Camera2BasicFragment extends Fragment
     /**
      * Shows a {@link Toast} on the UI thread.
      *
-     * @param text The message to show
      */
-    private void showToast(final String text) {
-        final Activity activity = getActivity();
-        if (activity != null) {
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
-                }
-            });
+    public class ToastDisplayer implements Toaster {
+        public void showToast(final String text) {
+            final Activity activity = getActivity();
+            if (activity != null) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         }
     }
+
+
 
     /**
      * Given {@code choices} of {@code Size}s supported by a camera, choose the smallest one that
@@ -730,7 +733,7 @@ public class Camera2BasicFragment extends Fragment
                         @Override
                         public void onConfigureFailed(
                                 @NonNull CameraCaptureSession cameraCaptureSession) {
-                            showToast("Failed");
+//                            showToast("Failed");
                         }
                     }, null
             );
@@ -845,26 +848,10 @@ public class Camera2BasicFragment extends Fragment
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
-                    AsyncHttpClient client = new AsyncHttpClient();
-                    String url = "https://run.blockspring.com/api_v2/blocks/reverse-image-search";
-                    RequestParams params = new RequestParams();
-                    params.put("api_key", "702eb4cc4f9a58e0861da8802d96ed08");
-                    params.put("image_url", "http://i.imgur.com/h9KDYlh.jpg");
-
-                    client.post(url, params, new JsonHttpResponseHandler(){
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                            super.onSuccess(statusCode, headers, response);
-                            fetchSummary();
-                        }
-
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                            super.onFailure(statusCode, headers, responseString, throwable);
-                            showToast("FAILURE 1");
-                        }
-                    });
-
+                    HttpClient httpClient = new HttpClient();
+                    ContentSummarizer contentSummarizer = new ContentSummarizer(httpClient);
+                    ReverseImageSearcher reverseImageSearcher = new ReverseImageSearcher(httpClient, contentSummarizer);
+                    reverseImageSearcher.search("http://i.imgur.com/h9KDYlh.jpg", new ToastDisplayer());
 //                    Log.d(TAG, mFile.toString());
                     unlockFocus();
                 }
@@ -877,31 +864,6 @@ public class Camera2BasicFragment extends Fragment
         }
     }
 
-    private void fetchSummary() {
-        AsyncHttpClient client = new AsyncHttpClient();
-        String url = "https://run.blockspring.com/api_v2/blocks/60fcacaff3e26678d4a78f35d824ca7c";
-        RequestParams params = new RequestParams();
-        params.put("api_key", "702eb4cc4f9a58e0861da8802d96ed08");
-        params.put("url_input", "https://en.wikipedia.org/wiki/2001_NBA_Finals");
-        params.put("sentence_count", 10);
-        client.post(url, params, new JsonHttpResponseHandler(){
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                super.onSuccess(statusCode, headers, response);
-                try {
-                    showToast(response.getString("Summary"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                super.onFailure(statusCode, headers, responseString, throwable);
-                showToast("FAILURE 2");
-            }
-        });
-    }
 
     /**
      * Retrieves the JPEG orientation from the specified screen rotation.
