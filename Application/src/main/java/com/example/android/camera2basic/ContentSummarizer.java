@@ -38,7 +38,7 @@ public class ContentSummarizer {
                     public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                         super.onFailure(statusCode, headers, responseString, throwable);
 
-                        toastDisplayer.showToast("FAILURE 2");
+                        toastDisplayer.showToast("FAILURE 3");
                     }
                 });
     }

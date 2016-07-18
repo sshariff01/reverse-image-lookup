@@ -49,6 +49,7 @@ import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Base64;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -59,17 +60,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,8 +69,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-
-import cz.msebera.android.httpclient.Header;
 
 public class Camera2BasicFragment extends Fragment
         implements View.OnClickListener, FragmentCompat.OnRequestPermissionsResultCallback {
@@ -357,26 +346,6 @@ public class Camera2BasicFragment extends Fragment
         }
 
     };
-
-    /**
-     * Shows a {@link Toast} on the UI thread.
-     *
-     */
-    public class ToastDisplayer implements Toaster {
-        public void showToast(final String text) {
-            final Activity activity = getActivity();
-            if (activity != null) {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        }
-    }
-
-
 
     /**
      * Given {@code choices} of {@code Size}s supported by a camera, choose the smallest one that
@@ -848,11 +817,6 @@ public class Camera2BasicFragment extends Fragment
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
-                    HttpClient httpClient = new HttpClient();
-                    ContentSummarizer contentSummarizer = new ContentSummarizer(httpClient);
-                    ReverseImageSearcher reverseImageSearcher = new ReverseImageSearcher(httpClient, contentSummarizer);
-                    reverseImageSearcher.search("http://i.imgur.com/h9KDYlh.jpg", new ToastDisplayer());
-//                    Log.d(TAG, mFile.toString());
                     unlockFocus();
                 }
             };
@@ -928,18 +892,32 @@ public class Camera2BasicFragment extends Fragment
     }
 
     /**
+     * Shows a {@link Toast} on the UI thread.
+     *
+     */
+    public class ToastDisplayer implements Toaster {
+        public void showToast(final String text) {
+            final Activity activity = getActivity();
+            if (activity != null) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }
+    }
+
+    /**
      * Saves a JPEG {@link Image} into the specified {@link File}.
      */
-    private static class ImageSaver implements Runnable {
+    private class ImageSaver implements Runnable {
 
         /**
          * The JPEG image
          */
         private final Image mImage;
-        /**
-         * The file we save the image into.
-         */
-        private final File mFile;
 
         public ImageSaver(Image image, File file) {
             mImage = image;
@@ -951,24 +929,18 @@ public class Camera2BasicFragment extends Fragment
             ByteBuffer buffer = mImage.getPlanes()[0].getBuffer();
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
-            FileOutputStream output = null;
-            try {
-                output = new FileOutputStream(mFile);
-                output.write(bytes);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                mImage.close();
-                if (null != output) {
-                    try {
-                        output.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
+            String base64EncodedBytes = Base64.encodeToString(bytes, Base64.DEFAULT);
 
+            HttpClient httpClient = new HttpClient();
+            ContentSummarizer contentSummarizer = new ContentSummarizer(httpClient);
+            ReverseImageSearcher reverseImageSearcher = new ReverseImageSearcher(httpClient, contentSummarizer);
+            ToastDisplayer toastDisplayer = new ToastDisplayer();
+            ImageUploader imageUploader = new ImageUploader(
+                    httpClient,
+                    reverseImageSearcher,
+                    toastDisplayer);
+            imageUploader.upload(base64EncodedBytes);
+        }
     }
 
     /**
