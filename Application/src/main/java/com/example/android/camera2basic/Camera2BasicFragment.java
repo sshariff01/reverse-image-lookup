@@ -46,6 +46,7 @@ import android.media.ImageReader;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
@@ -67,6 +68,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -909,6 +911,25 @@ public class Camera2BasicFragment extends Fragment
         }
     }
 
+    public class TextSynthesizer {
+        private final Activity activity = getActivity();
+
+        private final TextToSpeech textToSpeech = new TextToSpeech(activity, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    textToSpeech.setLanguage(Locale.UK);
+                }
+            }
+        });
+
+        public void synthesize(CharSequence text) {
+            String utteranceId = "utteranceId";
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId);
+            textToSpeech.shutdown();
+        }
+    }
+
     /**
      * Saves a JPEG {@link Image} into the specified {@link File}.
      */
@@ -932,7 +953,8 @@ public class Camera2BasicFragment extends Fragment
             String base64EncodedBytes = Base64.encodeToString(bytes, Base64.DEFAULT);
 
             HttpClient httpClient = new HttpClient();
-            ContentSummarizer contentSummarizer = new ContentSummarizer(httpClient);
+            TextSynthesizer textSynthesizer = new TextSynthesizer();
+            ContentSummarizer contentSummarizer = new ContentSummarizer(httpClient, textSynthesizer);
             ReverseImageSearcher reverseImageSearcher = new ReverseImageSearcher(httpClient, contentSummarizer);
             ToastDisplayer toastDisplayer = new ToastDisplayer();
             ImageUploader imageUploader = new ImageUploader(

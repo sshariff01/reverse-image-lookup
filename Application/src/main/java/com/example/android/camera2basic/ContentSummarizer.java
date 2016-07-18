@@ -7,12 +7,15 @@ import org.json.JSONObject;
 import java.util.Map;
 import cz.msebera.android.httpclient.Header;
 import com.example.android.camera2basic.Camera2BasicFragment.ToastDisplayer;
+import com.example.android.camera2basic.Camera2BasicFragment.TextSynthesizer;
 
 public class ContentSummarizer {
     private HttpClient httpClient;
+    private TextSynthesizer textSynthesizer;
 
-    public ContentSummarizer(HttpClient client) {
+    public ContentSummarizer(HttpClient client, TextSynthesizer textSynthesizer) {
         this.httpClient = client;
+        this.textSynthesizer = textSynthesizer;
     }
 
     public void summarize(String urlToSummarize, final ToastDisplayer toastDisplayer) {
@@ -28,7 +31,9 @@ public class ContentSummarizer {
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         super.onSuccess(statusCode, headers, response);
                         try {
-                            toastDisplayer.showToast(response.getString("Summary"));
+                            String summary = response.getString("Summary");
+                            toastDisplayer.showToast(summary);
+                            synthesizeText(summary);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -41,5 +46,9 @@ public class ContentSummarizer {
                         toastDisplayer.showToast("FAILURE 3");
                     }
                 });
+    }
+
+    private void synthesizeText(String text) {
+        textSynthesizer.synthesize(text);
     }
 }
