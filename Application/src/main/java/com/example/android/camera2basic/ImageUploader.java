@@ -2,7 +2,6 @@ package com.example.android.camera2basic;
 
 import android.util.ArrayMap;
 
-import com.example.android.camera2basic.Camera2BasicFragment.ToastDisplayer;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;

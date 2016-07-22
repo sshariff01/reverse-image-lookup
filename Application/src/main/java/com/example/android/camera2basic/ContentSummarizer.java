@@ -6,8 +6,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.Map;
 import cz.msebera.android.httpclient.Header;
-import com.example.android.camera2basic.Camera2BasicFragment.ToastDisplayer;
-import com.example.android.camera2basic.Camera2BasicFragment.TextSynthesizer;
 
 public class ContentSummarizer {
     private HttpClient httpClient;
@@ -20,8 +18,8 @@ public class ContentSummarizer {
 
     public void summarize(String urlToSummarize, final ToastDisplayer toastDisplayer) {
         Map<String, Object> requestParams = new ArrayMap<>();
-        requestParams.put("url_input", urlToSummarize); // "https://en.wikipedia.org/wiki/2001_NBA_Finals");
-        requestParams.put("sentence_count", 10);
+        requestParams.put("url_input", urlToSummarize);
+        requestParams.put("sentence_count", 5);
 
         httpClient.post(
                 "https://run.blockspring.com/api_v2/blocks/60fcacaff3e26678d4a78f35d824ca7c",

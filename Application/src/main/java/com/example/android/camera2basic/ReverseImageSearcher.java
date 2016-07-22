@@ -8,7 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.Map;
 import cz.msebera.android.httpclient.Header;
-import com.example.android.camera2basic.Camera2BasicFragment.ToastDisplayer;
 
 public class ReverseImageSearcher {
     private HttpClient httpClient;
@@ -21,7 +20,7 @@ public class ReverseImageSearcher {
 
     public void search(String urlToImage, final ToastDisplayer toastDisplayer) {
         Map<String, Object> requestParams = new ArrayMap<>();
-        requestParams.put("image_url", urlToImage); //"http://i.imgur.com/h9KDYlh.jpg"); Iverson Pic
+        requestParams.put("image_url", urlToImage);
 
         httpClient.post(
                 "https://run.blockspring.com/api_v2/blocks/reverse-image-search",
@@ -48,6 +47,6 @@ public class ReverseImageSearcher {
 
 
     private void fetchSummary(ToastDisplayer toastDisplayer, JSONArray matches) throws JSONException {
-        contentSummarizer.summarize(matches.getString(0), toastDisplayer); //"https://en.wikipedia.org/wiki/2001_NBA_Finals"
+        contentSummarizer.summarize(matches.getString(0), toastDisplayer);
     }
 }
