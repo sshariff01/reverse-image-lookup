@@ -4,3 +4,4 @@ gradle
 build
 local.properties
 *.iml
+Application/src/main/res/.DS_Store

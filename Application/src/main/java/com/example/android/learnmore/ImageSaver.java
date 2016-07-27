@@ -1,4 +1,4 @@
-package com.example.android.camera2basic;
+package com.example.android.learnmore;
 
 import android.media.Image;
 import android.util.Base64;

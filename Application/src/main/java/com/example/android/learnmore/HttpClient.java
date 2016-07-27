@@ -1,4 +1,4 @@
-package com.example.android.camera2basic;
+package com.example.android.learnmore;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.RequestParams;

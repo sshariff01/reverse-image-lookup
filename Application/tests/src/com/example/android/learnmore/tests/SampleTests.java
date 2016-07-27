@@ -13,9 +13,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.example.android.camera2basic.tests;
+package com.example.android.learnmore.tests;
 
-import com.example.android.camera2basic.*;
+import com.example.android.learnmore.*;
 
 import android.test.ActivityInstrumentationTestCase2;
 

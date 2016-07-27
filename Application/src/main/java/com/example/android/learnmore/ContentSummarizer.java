@@ -1,4 +1,4 @@
-package com.example.android.camera2basic;
+package com.example.android.learnmore;
 
 import android.util.ArrayMap;
 import com.loopj.android.http.JsonHttpResponseHandler;
