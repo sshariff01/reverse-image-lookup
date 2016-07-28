@@ -1,5 +1,7 @@
 package com.example.android.learnmore;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.util.ArrayMap;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import org.json.JSONException;
@@ -10,10 +12,12 @@ import cz.msebera.android.httpclient.Header;
 public class ContentSummarizer {
     private HttpClient httpClient;
     private TextSynthesizer textSynthesizer;
+    private final Activity activity;
 
-    public ContentSummarizer(HttpClient client, TextSynthesizer textSynthesizer) {
+    public ContentSummarizer(HttpClient client, TextSynthesizer textSynthesizer, Activity activity) {
         this.httpClient = client;
         this.textSynthesizer = textSynthesizer;
+        this.activity = activity;
     }
 
     public void summarize(String urlToSummarize, final ToastDisplayer toastDisplayer) {
@@ -30,7 +34,7 @@ public class ContentSummarizer {
                         super.onSuccess(statusCode, headers, response);
                         try {
                             String summary = response.getString("Summary");
-                            toastDisplayer.showToast(summary);
+                            launchInformationActivity(summary);
                             synthesizeText(summary);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -44,6 +48,12 @@ public class ContentSummarizer {
                         toastDisplayer.showToast("FAILURE 3");
                     }
                 });
+    }
+
+    private void launchInformationActivity(String data) {
+        Intent intent = new Intent(this.activity, InformationActivity.class);
+        intent.putExtra("data", data);
+        this.activity.startActivity(intent);
     }
 
     private void synthesizeText(String text) {

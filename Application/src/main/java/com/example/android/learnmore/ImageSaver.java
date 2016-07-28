@@ -13,7 +13,7 @@ public class ImageSaver implements Runnable {
     public static ImageSaver get(Image image, Activity activity) {
         HttpClient httpClient = new HttpClient();
         TextSynthesizer textSynthesizer = TextSynthesizer.get(activity);
-        ContentSummarizer contentSummarizer = new ContentSummarizer(httpClient, textSynthesizer);
+        ContentSummarizer contentSummarizer = new ContentSummarizer(httpClient, textSynthesizer, activity);
         ReverseImageSearcher reverseImageSearcher = new ReverseImageSearcher(httpClient, contentSummarizer);
         ToastDisplayer toastDisplayer = new ToastDisplayer(activity);
         ImageUploader imageUploader = new ImageUploader(
