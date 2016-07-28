@@ -5,3 +5,4 @@ build
 local.properties
 *.iml
 Application/src/main/res/.DS_Store
+**/.DS_Store
