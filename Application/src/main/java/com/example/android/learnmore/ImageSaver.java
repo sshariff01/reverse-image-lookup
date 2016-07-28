@@ -1,5 +1,6 @@
 package com.example.android.learnmore;
 
+import android.app.Activity;
 import android.media.Image;
 import android.util.Base64;
 
@@ -9,7 +10,21 @@ public class ImageSaver implements Runnable {
     private final Image mImage;
     private ImageUploader imageUploader;
 
-    public ImageSaver(Image image,
+    public static ImageSaver get(Image image, Activity activity) {
+        HttpClient httpClient = new HttpClient();
+        TextSynthesizer textSynthesizer = TextSynthesizer.get(activity);
+        ContentSummarizer contentSummarizer = new ContentSummarizer(httpClient, textSynthesizer);
+        ReverseImageSearcher reverseImageSearcher = new ReverseImageSearcher(httpClient, contentSummarizer);
+        ToastDisplayer toastDisplayer = new ToastDisplayer(activity);
+        ImageUploader imageUploader = new ImageUploader(
+                httpClient,
+                reverseImageSearcher,
+                toastDisplayer);
+
+        return new ImageSaver(image, imageUploader);
+    }
+
+    private ImageSaver(Image image,
                       ImageUploader imageUploader) {
         this.mImage = image;
         this.imageUploader = imageUploader;

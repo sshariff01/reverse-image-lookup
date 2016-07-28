@@ -312,8 +312,8 @@ public class Camera2BasicFragment extends Fragment
     public void onPause() {
         closeCamera();
         stopBackgroundThread();
-        TextSynthesizerFactory.get(getActivity()).shutdown();
-        TextSynthesizerFactory.destroyInstance();
+        TextSynthesizer.get(getActivity()).shutdown();
+        TextSynthesizer.destroyInstance();
         super.onPause();
     }
 
@@ -493,8 +493,7 @@ public class Camera2BasicFragment extends Fragment
         mBackgroundThread = new HandlerThread("CameraBackground");
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
-        mOnImageAvailableListener = OnImageAvailableListenerFactory
-                .create(mBackgroundHandler, getActivity());
+        mOnImageAvailableListener = new ImageAvailableListener(mBackgroundHandler, getActivity());
     }
 
     private void stopBackgroundThread() {
