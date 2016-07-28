@@ -10,20 +10,21 @@ public class TextSynthesizer {
     private final TextToSpeech textToSpeech;
     private final Activity activity;
 
-    public static TextSynthesizer get(Activity activity) {
+    public static TextSynthesizer get(Activity activity, CharSequence textToSpeak) {
         if (textSynthesizer == null || requireNewTextSynthesizer(activity)) {
-            textSynthesizer = new TextSynthesizer(activity);
+            textSynthesizer = new TextSynthesizer(activity, textToSpeak);
         }
         return textSynthesizer;
     }
 
-    private TextSynthesizer(Activity activity) {
+    private TextSynthesizer(Activity activity, final CharSequence textToSpeak) {
         this.activity = activity;
         this.textToSpeech = new TextToSpeech(activity, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
                 if (status != TextToSpeech.ERROR) {
                     textToSpeech.setLanguage(Locale.ENGLISH);
+                    synthesize(textToSpeak);
                 }
             }
         });
@@ -35,12 +36,6 @@ public class TextSynthesizer {
 
     public void shutdown() {
         textToSpeech.shutdown();
-    }
-
-    public static void destroyInstance() {
-        if (textSynthesizer != null) {
-            textSynthesizer = null;
-        }
     }
 
     private static boolean requireNewTextSynthesizer(Activity activity) {

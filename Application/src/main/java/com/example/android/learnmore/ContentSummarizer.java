@@ -11,19 +11,17 @@ import cz.msebera.android.httpclient.Header;
 
 public class ContentSummarizer {
     private HttpClient httpClient;
-    private TextSynthesizer textSynthesizer;
     private final Activity activity;
 
-    public ContentSummarizer(HttpClient client, TextSynthesizer textSynthesizer, Activity activity) {
+    public ContentSummarizer(HttpClient client, Activity activity) {
         this.httpClient = client;
-        this.textSynthesizer = textSynthesizer;
         this.activity = activity;
     }
 
     public void summarize(String urlToSummarize, final ToastDisplayer toastDisplayer) {
         Map<String, Object> requestParams = new ArrayMap<>();
         requestParams.put("url_input", urlToSummarize);
-        requestParams.put("sentence_count", 5);
+        requestParams.put("sentence_count", 10);
 
         httpClient.post(
                 "https://run.blockspring.com/api_v2/blocks/60fcacaff3e26678d4a78f35d824ca7c",
@@ -35,7 +33,6 @@ public class ContentSummarizer {
                         try {
                             String summary = response.getString("Summary");
                             launchInformationActivity(summary);
-                            synthesizeText(summary);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -54,9 +51,5 @@ public class ContentSummarizer {
         Intent intent = new Intent(this.activity, InformationActivity.class);
         intent.putExtra("data", data);
         this.activity.startActivity(intent);
-    }
-
-    private void synthesizeText(String text) {
-        textSynthesizer.synthesize(text);
     }
 }

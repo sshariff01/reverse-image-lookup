@@ -6,17 +6,29 @@ import android.app.Activity;
 import android.widget.TextView;
 
 public class InformationActivity extends Activity {
+    private TextView textView;
+    private TextSynthesizer textSynthesizer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_information);
+        textView = (TextView) findViewById(R.id.text_information);
         updateTextView(getIntent());
+        synthesizeText();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        textSynthesizer.shutdown();
     }
 
     private void updateTextView(Intent intent) {
-        String data = intent.getStringExtra("data");
-        TextView textView = (TextView) findViewById(R.id.text_information);
-        textView.setText(data);
+        textView.setText(intent.getStringExtra("data"));
+    }
+
+    private void synthesizeText() {
+        textSynthesizer = TextSynthesizer.get(this, textView.getText().toString());
     }
 }

@@ -312,8 +312,6 @@ public class Camera2BasicFragment extends Fragment
     public void onPause() {
         closeCamera();
         stopBackgroundThread();
-        TextSynthesizer.get(getActivity()).shutdown();
-        TextSynthesizer.destroyInstance();
         super.onPause();
     }
 
