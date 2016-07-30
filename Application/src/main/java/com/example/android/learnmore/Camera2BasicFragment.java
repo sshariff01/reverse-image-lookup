@@ -310,6 +310,7 @@ public class Camera2BasicFragment extends Fragment
 
     @Override
     public void onPause() {
+        unlockFocus();
         closeCamera();
         stopBackgroundThread();
         super.onPause();
@@ -643,19 +644,11 @@ public class Camera2BasicFragment extends Fragment
             int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, getOrientation(rotation));
 
-            CameraCaptureSession.CaptureCallback CaptureCallback
-                    = new CameraCaptureSession.CaptureCallback() {
-
-                @Override
-                public void onCaptureCompleted(@NonNull CameraCaptureSession session,
-                                               @NonNull CaptureRequest request,
-                                               @NonNull TotalCaptureResult result) {
-                    unlockFocus();
-                }
-            };
+            CameraCaptureSession.CaptureCallback captureCallback
+                    = new CameraCaptureSession.CaptureCallback() { };
 
             mCaptureSession.stopRepeating();
-            mCaptureSession.capture(captureBuilder.build(), CaptureCallback, null);
+            mCaptureSession.capture(captureBuilder.build(), captureCallback, null);
         } catch (CameraAccessException e) {
             e.printStackTrace();
         }
