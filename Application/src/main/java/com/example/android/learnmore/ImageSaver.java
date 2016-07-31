@@ -2,6 +2,7 @@ package com.example.android.learnmore;
 
 import android.app.Activity;
 import android.media.Image;
+import android.os.Handler;
 import android.util.Base64;
 
 import java.io.File;
@@ -15,10 +16,10 @@ public class ImageSaver implements Runnable {
     private File mFile;
     private ImageUploader imageUploader;
 
-    public static ImageSaver get(Image image, Activity activity) {
+    public static ImageSaver get(Image image, Handler progressDialogHandler, Activity activity) {
         File file = new File(activity.getExternalFilesDir(null), "pic.jpg");
         HttpClient httpClient = new HttpClient();
-        ContentSummarizer contentSummarizer = new ContentSummarizer(httpClient, activity);
+        ContentSummarizer contentSummarizer = new ContentSummarizer(httpClient, activity, progressDialogHandler);
         ReverseImageSearcher reverseImageSearcher = new ReverseImageSearcher(httpClient, contentSummarizer);
         ToastDisplayer toastDisplayer = new ToastDisplayer(activity);
         ImageUploader imageUploader = new ImageUploader(

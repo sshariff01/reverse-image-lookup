@@ -22,6 +22,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.Fragment;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -45,6 +46,7 @@ import android.media.ImageReader;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
@@ -68,9 +70,6 @@ import java.util.concurrent.TimeUnit;
 public class Camera2BasicFragment extends Fragment
         implements View.OnClickListener, FragmentCompat.OnRequestPermissionsResultCallback {
 
-    /**
-     * Conversion from screen rotation to JPEG orientation.
-     */
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     private static final int REQUEST_CAMERA_PERMISSION = 1;
     private static final String FRAGMENT_DIALOG = "dialog";
@@ -150,6 +149,8 @@ public class Camera2BasicFragment extends Fragment
 
     };
 
+    private static Handler progressDialogHandler;
+    private ProgressDialog progressDialog;
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
     private ImageReader mImageReader;
@@ -285,6 +286,43 @@ public class Camera2BasicFragment extends Fragment
         view.findViewById(R.id.picture).setOnClickListener(this);
         view.findViewById(R.id.info).setOnClickListener(this);
         mTextureView = (AutoFitTextureView) view.findViewById(R.id.texture);
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setMessage("Loading...");
+        progressDialogHandler = new ProgressDialogHandler(progressDialog, getActivity());
+    }
+
+    private static class ProgressDialogHandler extends Handler {
+        private ProgressDialog progressDialog;
+        private Activity activity;
+
+        public ProgressDialogHandler(ProgressDialog progressDialog, Activity activity) {
+            this.progressDialog = progressDialog;
+            this.activity = activity;
+        }
+
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            String message = (String) msg.obj;
+            if (message.equals("display")) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!progressDialog.isShowing()) {
+                            progressDialog.show();
+                        }
+                    }
+                });
+            } else if (message.equals("dismiss")) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                        }
+                    }
+                });
+            }
+        }
     }
 
     @Override
@@ -492,7 +530,7 @@ public class Camera2BasicFragment extends Fragment
         mBackgroundThread = new HandlerThread("CameraBackground");
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
-        mOnImageAvailableListener = new ImageAvailableListener(mBackgroundHandler, getActivity());
+        mOnImageAvailableListener = new ImageAvailableListener(mBackgroundHandler, progressDialogHandler, getActivity());
     }
 
     private void stopBackgroundThread() {
