@@ -25,7 +25,7 @@ public class ContentSummarizer {
     public void summarize(String urlToSummarize, final ToastDisplayer toastDisplayer) {
         Map<String, Object> requestParams = new ArrayMap<>();
         requestParams.put("url_input", urlToSummarize);
-        requestParams.put("sentence_count", 1);
+        requestParams.put("sentence_count", 5);
 
         httpClient.post(
                 "https://run.blockspring.com/api_v2/blocks/60fcacaff3e26678d4a78f35d824ca7c",
