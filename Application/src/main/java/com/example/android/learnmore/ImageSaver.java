@@ -17,7 +17,7 @@ public class ImageSaver implements Runnable {
     private ImageUploader imageUploader;
 
     public static ImageSaver get(Image image, Handler progressDialogHandler, Activity activity) {
-        File file = new File(activity.getExternalFilesDir(null), "pic.jpg");
+        File file = new File(activity.getExternalFilesDir(null), "capturedImage.jpg");
         HttpClient httpClient = new HttpClient();
         ContentSummarizer contentSummarizer = new ContentSummarizer(httpClient, activity, progressDialogHandler);
         ReverseImageSearcher reverseImageSearcher = new ReverseImageSearcher(httpClient, contentSummarizer);
